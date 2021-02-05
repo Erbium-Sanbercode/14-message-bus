@@ -4,7 +4,7 @@ const {
   ERROR_WORKER_NOT_FOUND,
 } = require('../../route/utils');
 const { writeData, readData, removeData } = require('../../database/orm');
-const { saveFile } = require('../../database/storage');
+const { saveFile, randomFileName } = require('../../database/storage');
 const { Writable } = require('stream');
 const url = require('url');
 
@@ -33,8 +33,10 @@ function addWorker(req, res) {
   busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
     switch (fieldname) {
       case 'photo':
+        const destname = randomFileName(mimetype);
         try {
-          data.photo = await saveFile(file, mimetype);
+          data.photo = destname;
+          saveFile(file, destname);
         } catch (err) {
           abort();
         }

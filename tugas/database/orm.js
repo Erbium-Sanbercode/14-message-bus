@@ -33,19 +33,19 @@ async function removeData(data) {
   return worker.findOne({ where: { id: data } });
 }
 
-async function updateTask(data) {
-  const instance = task.findOne({ where: { id: data.id } });
-  instance.job = data.job;
-  await instance.save();
-}
-``;
-async function writeDataTask(data) {
-  await task.create(data);
-}
+// async function updateTask(data) {
+//   const instance = task.findOne({ where: { id: data.id } });
+//   instance.job = data.job;
+//   await instance.save();
+// }
+// ``;
+// async function writeDataTask(data) {
+//   await task.create(data);
+// }
 
-async function removeDataTask(data) {
-  return task.findOne({ where: { id: data } });
-}
+// async function removeDataTask(data) {
+//   return task.findOne({ where: { id: data } });
+// }
 
 async function readData() {
   const { count, rows } = await worker.findAndCountAll();

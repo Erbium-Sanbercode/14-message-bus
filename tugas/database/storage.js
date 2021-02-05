@@ -1,14 +1,21 @@
-const fs = require('fs');
 const path = require('path');
 const mime = require('mime-types');
-// eslint-disable-next-line no-unused-vars
-const { Readable } = require('stream');
+const { abort } = require('process');
+const { Client } = require('minio');
 
 /**
  * generate random file name
  * @param {string} mimetype mimetype
  * @returns {string} generated file name
  */
+const client = new Client({
+  endPoint: '127.0.0.1',
+  port: 9000,
+  useSSL: false,
+  accessKey: 'minioadmin',
+  secretKey: 'minioadmin',
+});
+
 function randomFileName(mimetype) {
   return (
     new Date().getTime() +
@@ -25,22 +32,18 @@ function randomFileName(mimetype) {
  * @param {string} mimetype mime type
  * @returns {Promise<string>} generated filename
  */
-function saveFile(file, mimetype) {
-  const destname = randomFileName(mimetype);
-  const store = fs.createWriteStream(
-    path.resolve(__dirname, `../file-storage/${destname}`)
-  );
-  return new Promise((resolve, reject) => {
-    store.on('finish', () => {
-      resolve(destname);
-    });
-    store.on('error', (err) => {
-      reject(err);
-    });
-    file.pipe(store);
+function saveFile(file, destname) {
+
+   client.putObject('photo', destname, file, (err, res) => {
+    if (err) {
+      console.log(err);
+      abort();
+    }
+    console.log('sukses');
   });
 }
 
 module.exports = {
+  randomFileName,
   saveFile,
 };
