@@ -1,30 +1,22 @@
 const Busboy = require('busboy');
-const url = require('url');
-const { Writable } = require('stream');
 const {
-  register,
-  list,
-  remove,
   ERROR_REGISTER_DATA_INVALID,
   ERROR_WORKER_NOT_FOUND,
-} = require('./worker');
-const { saveFile } = require('../lib/storage');
-// eslint-disable-next-line no-unused-vars
-const { IncomingMessage, ServerResponse } = require('http');
+} = require('../../route/utils');
+const { writeData, readData, removeData } = require('../../database/orm');
+const { saveFile } = require('../../database/storage');
+const { Writable } = require('stream');
+const url = require('url');
 
-/**
- * service to register new worker
- * @param {IncomingMessage} req
- * @param {ServerResponse} res
- */
-function registerSvc(req, res) {
+function addWorker(req, res) {
   const busboy = new Busboy({ headers: req.headers });
 
   const data = {
     name: '',
-    age: 0,
+    address: 0,
+    phone: '',
+    email: '',
     bio: '',
-    address: '',
     photo: '',
   };
 
@@ -48,9 +40,9 @@ function registerSvc(req, res) {
         }
         if (finished) {
           try {
-            const worker = await register(data);
+            await writeData(data);
             res.setHeader('content-type', 'application/json');
-            res.write(JSON.stringify(worker));
+            res.write(JSON.stringify(data));
           } catch (err) {
             if (err === ERROR_REGISTER_DATA_INVALID) {
               res.statusCode = 401;
@@ -64,7 +56,7 @@ function registerSvc(req, res) {
         break;
       default: {
         const noop = new Writable({
-          write(chunk, encding, callback) {
+          write(chunk, encoding, callback) {
             setImmediate(callback);
           },
         });
@@ -74,7 +66,7 @@ function registerSvc(req, res) {
   });
 
   busboy.on('field', (fieldname, val) => {
-    if (['name', 'age', 'bio', 'address'].includes(fieldname)) {
+    if (['name', 'address', 'email', 'phone', 'bio'].includes(fieldname)) {
       data[fieldname] = val;
     }
   });
@@ -89,14 +81,9 @@ function registerSvc(req, res) {
   req.pipe(busboy);
 }
 
-/**
- * service to get list of workers
- * @param {IncomingMessage} req
- * @param {ServerResponse} res
- */
-async function listSvc(req, res) {
+async function workerList(req, res) {
   try {
-    const workers = await list();
+    const workers = await readData();
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(workers));
     res.end();
@@ -107,12 +94,7 @@ async function listSvc(req, res) {
   }
 }
 
-/**
- * service to remove a worker by it's id
- * @param {IncomingMessage} req
- * @param {ServerResponse} res
- */
-async function removeSvc(req, res) {
+async function disMember(req, res) {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
@@ -122,7 +104,7 @@ async function removeSvc(req, res) {
     return;
   }
   try {
-    const worker = await remove(id);
+    const worker = await removeData(id);
     res.setHeader('content-type', 'application/json');
     res.statusCode = 200;
     res.write(JSON.stringify(worker));
@@ -140,8 +122,4 @@ async function removeSvc(req, res) {
   }
 }
 
-module.exports = {
-  listSvc,
-  registerSvc,
-  removeSvc,
-};
+module.exports = { addWorker, workerList, disMember };

@@ -1,15 +1,27 @@
 # Tugas
 
-Tambahkan Performance Service pada aplikasi yang sudah dibuat sebelumnya
+buat system manajemen task yang terdiri dari 2 web service
 
-![service diagram](tugas-besar-task-system.png)
+1. workers service
+    menyediakan informasi mengenai pekerja
+    - menyimpan profil pekerja, nama, alamat, email, no-telp, biografi singkat
+    - upload foto pekerja
+    - membaca profil pekerja
+    - menghapus informasi pekerja
 
-1. performance service
-    menyediakan informasi mengenai histori transaksi yang dilakukan
-    - simpan segala aktivitas transaksi di dalam KV
-    - dapat diagregasi dengan menampilkan jumlah task dan worker yang dibuat, dihapus, diupdate (jika ada) 
-    dalam kurun waktu tertentu (misalkan 1 hari, 1 minggu, tgl 1 sampai 12)
+1. tasks service
+    mengatur daftar pekerjaan
+    - membuat pekerjaan baru, informasinya. pekerjaannya apa, pekerjanya siapa
+    - bisa mengupload attachment untuk detail pekerjaan
+    - menandakan pekerjaan sebagai selesai
+    - membatalkan pekerjaan
 
-2. object storage
-    menggunakan minio untuk upload file
-    - ganti file system ke object storage
+spesifikasi
+- informasi disimpan didalam relational database menggunakan ORM
+- file disimpan di dalam filesystem
+- struktur projectnya dipisah2 antara
+  - persistence / storage layer
+  - business logic
+  - (optional) test case
+  - transport layer
+  - main execution
