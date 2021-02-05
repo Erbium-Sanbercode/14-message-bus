@@ -27,7 +27,7 @@ function run() {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res);
+            await registerSvc(req, res);
           } else {
             respond(404);
           }
